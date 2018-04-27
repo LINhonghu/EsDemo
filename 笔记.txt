@@ -1,0 +1,151 @@
+ES 
+  高级条件查询
+		子条件查询
+			全文本查询
+				模糊查询
+					url localhost:9200/books/_search
+					query Context (计算 _socre 来匹配目标的)
+							{
+								"query":{
+									"match":{
+										条件：字段
+									}
+								}
+							}
+				习语查询（"一整个词查询"）
+					url localhost:9200/books/_search
+					query Context (计算 _socre 来匹配目标的)
+							{
+								"query":{
+									"match_phrase":{
+										条件：字段
+									}
+								}
+							}
+				多条件查询
+					url localhost:9200/books/_search
+					{
+						"query":{
+							"multi_match":{
+								"query":"瓦力",
+								"fields":["author","title"] //查询author和 title中含有瓦力的结果
+							}
+						}
+					}
+				语法查询
+					url localhost:9200/books/_search
+					{	
+						"query":{
+							"query_string":{
+								"query":"瓦力 AND honghu" OR 瓦力 //查询瓦力
+							}
+						}
+					}
+				结构化查询
+					url localhost:9200/books/_search
+					{
+						"query":{
+							"term":{
+								"author":"压力"
+							}
+						}
+					}
+				数据范围查询
+					url localhost:9200/books/_search
+					{
+						"query":{
+							"range":{
+								"word_count":{
+									"gte":1000, //小于等于（加e就是包含的意思）
+									"lte"：2000 //大于等于
+								}
+							}
+						}
+					}
+				日期范围查询
+					url localhost:9200/books/_search
+					{
+						"query":{
+							"range":{
+								"publish_date":{
+									"gte":1000, //小于等于（加e就是包含的意思）
+									"lte"：2000 //大于等于
+								}
+							}
+						}
+					}
+				字段查询（结构化数据，日期）
+			Filter Context(只是判断结果是否满足条件，如果满足返回，不满足不返回)
+				 //做缓存，查询快捷
+				 url localhost:9200/books/_search
+				 {
+					"query":{
+						"bool":{
+							"filter":{
+								"term":{
+									"word_count":1000
+								}
+							}
+						}
+					}
+				 }
+				 //应该满足
+				 url localhost:9200/books/_search
+				 {
+					"query":{
+						"bool":{
+							"should":[
+							  {
+								"match":{
+									"author":"瓦力"
+								},
+								"match":{
+									"title":"ElasticSearch"
+								}
+							  } 
+							]
+						}
+					}
+				 }
+				 //必须满足,加过滤器
+				 url localhost:9200/books/_search
+				 {
+					"query":{
+						"bool":{
+							"must":[
+								"match":{
+																	 
+									"author":"瓦力"
+								},
+								"match":{
+									"title":"ElasticSearch"
+								}	
+								}
+							],
+							"filter":[{
+								"term":{
+									"word_count":1000
+								}
+							}]
+						}
+					}
+				 }
+				
+		复合条件查询
+			固定分数查询
+				url localhost:9200/books/_search
+				{
+					"query":{
+						"constant_score":{
+							"filter":{
+								"match":{
+									"title":"ElasticSearch"
+								}
+							},
+							"boost":2 //指定分数 
+						}
+					}
+				}
+
+
+			布尔查询
